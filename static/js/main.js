@@ -197,6 +197,14 @@ document.getElementById("findForm").addEventListener("submit", async (e) => {
 loadStats();
 
 document.addEventListener("DOMContentLoaded", () => {
+  let studentId = localStorage.getItem("studentId");
+  if (!studentId) {
+    // Generate a random 6-character ID for this user's browser session
+    studentId = "User_" + Math.random().toString(36).substring(2, 8).toUpperCase();
+    localStorage.setItem("studentId", studentId);
+  }
+  document.getElementById("studentName").value = studentId;
+
   const savedSubject = localStorage.getItem("savedSubject");
   if (savedSubject) document.getElementById("subjectInput").value = savedSubject;
 });
