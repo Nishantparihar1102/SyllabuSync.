@@ -203,10 +203,16 @@ def api_progress():
 
 @app.route("/api/stats")
 def api_stats():
+    student = request.args.get("student")
     db = get_db()
-    units = db.execute("SELECT COUNT(*) c FROM units").fetchone()["c"]
-    topics = db.execute("SELECT COUNT(*) c FROM topic_videos").fetchone()["c"]
-    watched = db.execute("SELECT COUNT(*) c FROM topic_videos WHERE watched=1").fetchone()["c"]
+    if student:
+        units = db.execute("SELECT COUNT(*) c FROM units WHERE student=?", (student,)).fetchone()["c"]
+        topics = db.execute("SELECT COUNT(*) c FROM topic_videos JOIN units ON topic_videos.unit_id = units.id WHERE units.student=?", (student,)).fetchone()["c"]
+        watched = db.execute("SELECT COUNT(*) c FROM topic_videos JOIN units ON topic_videos.unit_id = units.id WHERE units.student=? AND topic_videos.watched=1", (student,)).fetchone()["c"]
+    else:
+        units = db.execute("SELECT COUNT(*) c FROM units").fetchone()["c"]
+        topics = db.execute("SELECT COUNT(*) c FROM topic_videos").fetchone()["c"]
+        watched = db.execute("SELECT COUNT(*) c FROM topic_videos WHERE watched=1").fetchone()["c"]
     return jsonify({"units": units, "topics": topics, "watched": watched})
 
 

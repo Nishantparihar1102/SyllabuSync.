@@ -20,7 +20,8 @@ document.getElementById("presetSelect").addEventListener("change", (e) => {
 
 async function loadStats() {
   try {
-    const r = await fetch("/api/stats");
+    const studentId = localStorage.getItem("studentId") || "Student";
+    const r = await fetch(`/api/stats?student=${encodeURIComponent(studentId)}`);
     const d = await r.json();
     document.getElementById("statUnits").textContent = d.units;
     document.getElementById("statTopics").textContent = d.topics;
@@ -194,7 +195,7 @@ document.getElementById("findForm").addEventListener("submit", async (e) => {
   }
 });
 
-loadStats();
+// loadStats is now called inside DOMContentLoaded
 
 document.addEventListener("DOMContentLoaded", () => {
   let studentId = localStorage.getItem("studentId");
@@ -205,6 +206,10 @@ document.addEventListener("DOMContentLoaded", () => {
   }
   document.getElementById("studentName").value = studentId;
 
+  document.getElementById("studentName").value = studentId;
+
   const savedSubject = localStorage.getItem("savedSubject");
   if (savedSubject) document.getElementById("subjectInput").value = savedSubject;
+  
+  loadStats();
 });
