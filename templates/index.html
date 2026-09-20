@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>SyllabuSync — find the exact lecture segment for your syllabus</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+
+<div class="ruler"></div>
+
+<header class="topbar">
+  <div class="brand">
+    <span class="brand-mark">§</span>
+    <span class="brand-name">SyllabuSync</span>
+  </div>
+  <nav class="tabs" id="tabs">
+    <button class="tab active" data-tab="home">Home</button>
+    <button class="tab" data-tab="find">Find my topics</button>
+    <button class="tab" data-tab="progress">Progress</button>
+  </nav>
+  <div class="name-field">
+    <label for="studentName">Studying as</label>
+    <input id="studentName" type="text" value="Student" autocomplete="off">
+  </div>
+</header>
+
+{% if demo_mode %}
+<div class="demo-banner">
+  Demo mode — no YouTube API key configured, so matches below are simulated. Add <code>YOUTUBE_API_KEY</code> to search live. See README.
+</div>
+{% endif %}
+
+<main>
+
+  <!-- HOME -->
+  <section class="view active" id="view-home">
+    <div class="hero">
+      <h1>Stop searching.<br>Start watching the <em>right</em> five minutes.</h1>
+      <p class="lede">
+        You search YouTube for a syllabus topic and get a video made for someone else's
+        university — maybe 2 or 3 topics overlap with yours. When you do find the right lecture,
+        it's four hours long and you have no idea where your topic even starts. And six topics
+        from one unit end up scattered across six different channels.
+      </p>
+      <p class="lede">
+        Paste your syllabus. SyllabuSync finds the exact segment of the right video for each topic
+        — and tells you when one lecture already covers several of them.
+      </p>
+      <button class="btn-primary" onclick="switchTab('find')">Paste your syllabus →</button>
+    </div>
+
+    <div class="stat-row" id="statRow">
+      <div class="stat"><span class="stat-num" id="statUnits">–</span><span class="stat-label">units mapped</span></div>
+      <div class="stat"><span class="stat-num" id="statTopics">–</span><span class="stat-label">topics matched</span></div>
+      <div class="stat"><span class="stat-num" id="statWatched">–</span><span class="stat-label">segments watched</span></div>
+    </div>
+
+    <div class="how">
+      <div class="how-item">
+        <span class="how-mark">jump‑to</span>
+        <p>Descriptions are scanned for timestamped chapters, so each topic links straight to its
+        segment — not the full lecture.</p>
+      </div>
+      <div class="how-item">
+        <span class="how-mark">merge</span>
+        <p>When one lecture already covers several of your topics, it's called out — so you're not
+        hunting across six channels for content that's already in one place.</p>
+      </div>
+      <div class="how-item">
+        <span class="how-mark">any syllabus</span>
+        <p>You paste your own topics. Works for any college — nothing depends on a pre-loaded
+        syllabus database.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- FIND TOPICS -->
+  <section class="view" id="view-find">
+    <h2>Find my topics</h2>
+
+    <div class="preset-row">
+      <label for="presetSelect">Quick-try an example</label>
+      <select id="presetSelect">
+        <option value="">— Paste my own —</option>
+        {% for name in presets.keys() %}
+        <option value="{{ name }}">{{ name }}</option>
+        {% endfor %}
+      </select>
+    </div>
+
+    <form id="findForm">
+      <div class="field-row">
+        <div class="field">
+          <label for="subjectInput">Subject</label>
+          <input id="subjectInput" type="text" placeholder="e.g. Data Structures" required>
+        </div>
+        <div class="field">
+          <label for="unitInput">Unit / chapter</label>
+          <input id="unitInput" type="text" placeholder="e.g. Unit 3: Trees">
+        </div>
+      </div>
+      <div class="field">
+        <label for="topicsInput">Syllabus topics — one per line</label>
+        <textarea id="topicsInput" rows="7" placeholder="Binary Tree Basics
+Binary Search Tree
+Tree Traversals
+..." required></textarea>
+      </div>
+      <button type="submit" class="btn-primary" id="findSubmit">Find lectures for these topics</button>
+    </form>
+
+    <div id="findStatus" class="find-status"></div>
+    <div id="multiTopicBox" class="multi-box" hidden></div>
+    <div id="resultsList" class="results-list"></div>
+  </section>
+
+  <!-- PROGRESS -->
+  <section class="view" id="view-progress">
+    <h2>My progress</h2>
+    <div id="progressList" class="progress-list">
+      <p class="empty-note">No units mapped yet. Head to <button class="link-btn" onclick="switchTab('find')">Find my topics</button> to get started.</p>
+    </div>
+  </section>
+
+</main>
+
+<footer>
+  <span>Built for HackDevengers 2.0 · Open Innovation</span>
+</footer>
+
+<script type="application/json" id="presets-data">
+  {{ presets | tojson }}
+</script>
+<script>
+  window.PRESETS = JSON.parse(document.getElementById('presets-data').textContent);
+</script>
+<script src="{{ url_for('static', filename='js/main.js') }}"></script>
+</body>
+</html>
